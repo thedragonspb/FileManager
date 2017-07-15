@@ -1,9 +1,13 @@
-package sample;
+package filemanager;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -12,9 +16,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-import javax.imageio.ImageIO;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -22,25 +24,24 @@ import java.util.ArrayList;
  */
 public class DirectoryView {
 
-    ScrollPane scrollPane;
-    GridPane gridPane;
+    public static int ITEM_WIDTH     = 120;
+    public static int ITEM_IMG_WIDTH = 60;
+    public static int ITEM_PADDING   = 5;
+    
+    private ScrollPane scrollPane;
+    private GridPane gridPane;
 
-    ArrayList<DirectoryItem> items = new ArrayList<>();
-
-    Image folderIcon = new Image("folder.png");
-    Image fileIcon   = new Image("file.png");
-    Image imageIcon  = new Image("photo.png");
+    private ArrayList<DirectoryItem> items = new ArrayList<>();
 
     private int oldSceneWidth;
 
     private VBox selectedItem = null;
 
-
     public DirectoryView() {
         gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER_LEFT);
-        gridPane.setHgap(25);
-        gridPane.setVgap(25);
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
 
         scrollPane = new ScrollPane();
         scrollPane.setContent(gridPane);
@@ -52,30 +53,34 @@ public class DirectoryView {
         Image image = null;
         items.clear();
         ArrayList<File> notDirectory = new ArrayList<>();
-
-        for (File file : files) {
-            if (file.isDirectory()) {
-                image = folderIcon;
-                items.add(new DirectoryItem(file, image));
-            } else {
-                notDirectory.add(file);
+        boolean showHiddenFiles = States.getInstance().isShowHiddenFiles();
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if ((file.isHidden() & showHiddenFiles) == true || !file.isHidden()) {
+                    if (file.isDirectory()) {
+                        image = Icons.getIcon64(file);
+                        items.add(new DirectoryItem(file, image));
+                    } else {
+                        notDirectory.add(file);
+                    }
+                }
             }
-        }
 
-        for (File file : notDirectory) {
-            image = isImage(file) ? imageIcon : fileIcon;
-            items.add(new DirectoryItem(file, image));
+            for (File file : notDirectory) {
+                image = Icons.getIcon64(file);
+                items.add(new DirectoryItem(file, image));
+            }
         }
     }
 
-    public Node createGridPane(int sceneWidth) {
-        if (Math.abs(sceneWidth - oldSceneWidth) < 120 && sceneWidth > oldSceneWidth)
-            return null;
+    public Node createView(int sceneWidth) {
+        //if (Math.abs(sceneWidth - oldSceneWidth) < ITEM_WIDTH + ITEM_PADDING * 2 && sceneWidth > oldSceneWidth)
+          //  return null;
 
         oldSceneWidth = sceneWidth;
 
-        int buttonWidth = 120;
-        int buttonCountInRow = sceneWidth / buttonWidth;
+        int buttonWidth = ITEM_WIDTH + ITEM_PADDING * 2;
+        int buttonsCountInRow = sceneWidth / buttonWidth;
 
         gridPane.getChildren().clear();
 
@@ -83,24 +88,12 @@ public class DirectoryView {
         for (DirectoryItem item : items) {
             gridPane.add(item.vBox, i, j);
             i ++;
-            if (i == buttonCountInRow) {
+            if (i == buttonsCountInRow) {
                 j++;
                 i = 1;
             }
         }
-
         return scrollPane;
-    }
-
-    public boolean isImage(File file) {
-        try {
-            if (ImageIO.read(file) == null) {
-                return false;
-            }
-            return true;
-        } catch(IOException ex) {
-            return false;
-        }
     }
 
     class DirectoryItem {
@@ -113,33 +106,56 @@ public class DirectoryView {
             imageView = newImageView(image);
             vBox = new VBox(imageView, label);
             vBox.setAlignment(Pos.CENTER);
+            vBox.setPadding(new Insets(ITEM_PADDING, ITEM_PADDING, ITEM_PADDING, ITEM_PADDING));
             vBox.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
                     if(event.getButton().equals(MouseButton.PRIMARY)){
                         switch (event.getClickCount()) {
-                            case 1 :
+                            case 1 : {
                                 if (selectedItem != null)
                                     selectedItem.setStyle("");
                                 selectedItem = vBox;
-                                vBox.setStyle("-fx-background-color:#d6fff4");
+                                vBox.setStyle("-fx-background-color:#fcf3ba");
+                                States.getInstance().setSelectedFile(file);
                                 break;
-
-                            case 2 :
+                            }
+                            case 2 : {
                                 if (file.isDirectory()) {
                                     ArrayList<File> history = States.getInstance().getHistory();
                                     if (!history.contains(file)) {
                                         history.clear();
                                         File temp = file;
-                                        while (temp.getParentFile() != null) {
+                                        do {
                                             history.add(temp);
                                             temp = temp.getParentFile();
-                                        }
+                                        } while (temp != null);
                                     }
-                                    States.getInstance().setCurrentFile(file);
+                                    States.getInstance().setCurrentDirectory(file);
                                 }
                                 break;
+                            }
                         }
+                    }
+                }
+            });
+            vBox.setOnMousePressed(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    if (event.isSecondaryButtonDown()) {
+                        final ContextMenu contextMenu = new ContextMenu();
+                        MenuItem rename = new MenuItem("Переименовать");
+                        MenuItem delete = new MenuItem("Удалить");
+                        MenuItem info = new MenuItem("Свойства");
+                        contextMenu.getItems().addAll(delete, rename, info);
+                        contextMenu.setWidth(250);
+
+                        if (selectedItem != null)
+                            selectedItem.setStyle("");
+                        selectedItem = vBox;
+                        vBox.setStyle("-fx-background-color:#fcf3ba");
+                        States.getInstance().setSelectedFile(file);
+                        contextMenu.show(vBox, event.getScreenX(), event.getScreenY());
                     }
                 }
             });
@@ -148,16 +164,16 @@ public class DirectoryView {
         private Label newLabel(String text) {
             Label label = new Label(text);
             label.setWrapText(true);
-            label.setPrefWidth(120);
-            label.setPrefSize(120,40);
+            label.setPrefWidth(ITEM_WIDTH);
+            label.setPrefSize(ITEM_WIDTH,60);
             label.setAlignment(Pos.CENTER);
             return label;
         }
 
         private ImageView newImageView(Image image) {
             ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(80);
-            imageView.setFitHeight(80);
+            imageView.setFitWidth(ITEM_IMG_WIDTH);
+            imageView.setFitHeight(ITEM_IMG_WIDTH);
             return imageView;
         }
     }
