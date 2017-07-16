@@ -18,7 +18,7 @@ public class Main extends Application {
     private FileInfView       fileInfView;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
         States states = States.getInstance();
 
@@ -66,7 +66,7 @@ public class Main extends Application {
         });
 
         primaryStage.setTitle("File Manager");
-        primaryStage.setScene(new Scene(root, 600, 480));
+        primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.setMinWidth(550);
         primaryStage.setMinHeight(450);
         primaryStage.show();

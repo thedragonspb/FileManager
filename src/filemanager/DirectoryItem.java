@@ -5,13 +5,18 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -56,6 +61,16 @@ class DirectoryItem {
                                     } while (temp != null);
                                 }
                                 States.getInstance().setCurrentDirectory(file);
+                            } else {
+                                if( Desktop.isDesktopSupported() ) {
+                                    new Thread(() -> {
+                                        try {
+                                            Desktop.getDesktop().browse(file.toURI());
+                                        } catch (IOException e1) {
+                                            e1.printStackTrace();
+                                        }
+                                    }).start();
+                                }
                             }
                             break;
                         }
