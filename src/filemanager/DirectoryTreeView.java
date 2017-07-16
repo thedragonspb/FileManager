@@ -9,7 +9,9 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -38,6 +40,16 @@ public class DirectoryTreeView {
                         }
                         States.getInstance().setCurrentDirectory(selectedItem);
                     } else {
+                        if(Desktop.isDesktopSupported() )
+                        {
+                            new Thread(() -> {
+                                try {
+                                    Desktop.getDesktop().browse(selectedItem.toURI());
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }).start();
+                        }
                         States.getInstance().setSelectedFile(selectedItem);
                     }
                 }
