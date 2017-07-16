@@ -3,15 +3,15 @@ package filemanager;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Created by thedragonspb on 10.07.17.
@@ -20,6 +20,8 @@ public class DirectoryViewTop {
 
     private Button next = new Button(">");
     private Button prev = new Button("<");
+    private Button newDirectory = new Button("+ Новая папка");
+    private CheckBox showHiddenFiles = new CheckBox("Показывать скрытые папки");
 
     private HBox pathView;
     private HBox pathControllersView;
@@ -35,8 +37,7 @@ public class DirectoryViewTop {
             @Override
             public void handle(ActionEvent event) {
                 File currentDirectory   = states.getCurrentDirectory();
-                ArrayList<File> history = states.getHistory();
-                if (currentDirectory.getParentFile() != null) {
+                if (currentDirectory != null && currentDirectory.getParentFile() != null) {
                     currentDirectory = currentDirectory.getParentFile();
                     states.setCurrentDirectory(currentDirectory);
                 }
@@ -55,14 +56,44 @@ public class DirectoryViewTop {
             }
         });
 
-        prev.setStyle(btnStyle);
-        next.setStyle(btnStyle);
+        newDirectory.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                createFolderView();
+            }
+        });
+
+        showHiddenFiles.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                States states = States.getInstance();
+                if (showHiddenFiles.isSelected()) {
+                    states.setShowHiddenFiles(true);
+                } else {
+                    states.setShowHiddenFiles(false);
+                }
+                if (states.getCurrentDirectory() != null) {
+                    states.setCurrentDirectory(states.getCurrentDirectory());
+                }
+            }
+        });
+
+        prev.setStyle(btnStyle1);
+        next.setStyle(btnStyle1);
+        newDirectory.setStyle(btnStyle1);
+        showHiddenFiles.setStyle("-fx-text-fill: white;");
 
         pathView = new HBox();
         pathControllersView = new HBox(prev, next, pathView);
+
         controllersView = new HBox();
-        controllersView.getChildren().addAll(new Button(), new Button());
-        topView = new VBox(pathControllersView);
+        controllersView.getChildren().addAll(showHiddenFiles, newDirectory);
+        controllersView.setAlignment(Pos.CENTER_RIGHT);
+        controllersView.setSpacing(10);
+
+        topView = new VBox(pathControllersView, controllersView);
+        topView.setSpacing(5);
+        topView.setPadding(new Insets(0,5,5,0));
     }
 
     public Node getView() {
@@ -71,6 +102,28 @@ public class DirectoryViewTop {
 
     public void update() {
         createPath();
+    }
+
+    public void createFolderView() {
+        TextInputDialog dialog = new TextInputDialog("Имя папки");
+        dialog.setTitle("Новая папка");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Введите имя папки:");
+        Optional<String> result = dialog.showAndWait();
+        File cur = States.getInstance().getCurrentDirectory();
+        if (result.isPresent() && cur != null) {
+            File newFile = new File(cur.getPath() + "/" + result.get());
+            if (newFile.mkdir()) {
+                States.getInstance().setCurrentDirectory(cur);
+                States.getInstance().setSelectedFile(cur);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Ошибка");
+                alert.setHeaderText("Ошибка создания папки");
+                alert.setContentText(null);
+                alert.show();
+            }
+        }
     }
 
     private void createPath() {
@@ -99,24 +152,29 @@ public class DirectoryViewTop {
                     states.setCurrentDirectory(file);
                 }
             });
-            setStyle(
-                    "-fx-background-color: rgba(0,0,0,0.08),\n" +
-                    "linear-gradient(#9a9a9a, #909090),\n" +
-                    "linear-gradient(white 0%, #f3f3f3 50%, #ececec 51%, #f2f2f2 100%);\n" +
-                    "-fx-background-radius: 0;\n" +
-                    "-fx-text-fill: #242d35;\n" +
-                    "-fx-font-size: 14px;"
-            );
+            setStyle(pathStyle);
         }
     }
 
-    public String btnStyle =
-            "-fx-background-color: \n" +
-                    "rgba(0,0,0,0.08),\n" +
-                    "linear-gradient(#5a61af, #51536d),\n" +
-                    "linear-gradient(#e4fbff 0%,#cee6fb 10%, #a5d3fb 50%, #88c6fb 51%, #d5faff 100%);\n" +
-                    "-fx-background-insets: 0 0 -1 0,0,1;\n" +
-                    "-fx-background-radius: 0;\n" +
-                    "-fx-text-fill: #242d35;\n" +
-                    "-fx-font-size: 14px;";
+    public String pathStyle =
+            "-fx-background-color: #000000,             \n" +
+                    "linear-gradient(#fcfcfc, #f3f3f3), \n" +
+                    "linear-gradient(#fcfcfc, #f3f3f3), \n" +
+                    "linear-gradient(#fcfcfc, #f3f3f3); \n" +
+            "-fx-background-insets: 0,1,2,3;            \n" +
+            "-fx-background-radius: 0,0,0,0;            \n" +
+            "-fx-padding: 6 15 6 15;                    \n" +
+            "-fx-text-fill: black;                      \n" +
+            "-fx-font-size: 12px;";
+
+    public String btnStyle1 =
+            "-fx-background-color: #000000,             \n" +
+                    "linear-gradient(#7ebcea, #2f4b8f), \n" +
+                    "linear-gradient(#426ab7, #263e75), \n" +
+                    "linear-gradient(#395cab, #223768); \n" +
+            "-fx-background-insets: 0,1,2,3;            \n" +
+            "-fx-background-radius: 0,0,0,0;            \n" +
+            "-fx-padding: 6 15 6 15;                    \n" +
+            "-fx-text-fill: white;                      \n" +
+            "-fx-font-size: 12px;";
 }

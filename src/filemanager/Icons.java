@@ -29,7 +29,7 @@ public class Icons {
         icons32.put("psd" , null);         icons32.put("rar" , null);
         icons32.put("txt" , null);         icons32.put("zip" , null);
         icons32.put("xls" , null);         icons32.put("xml" , null);
-        icons32.put("zip" , null);
+        icons32.put("zip" , null);         icons32.put("java", null);
 
         icons64.put("avi" , null);         icons64.put("css" , null);
         icons64.put("csv" , null);         icons64.put("dbf" , null);
@@ -41,7 +41,7 @@ public class Icons {
         icons64.put("psd" , null);         icons64.put("rar" , null);
         icons64.put("txt" , null);         icons64.put("zip" , null);
         icons64.put("xls" , null);         icons64.put("xml" , null);
-        icons64.put("zip" , null);
+        icons64.put("zip" , null);         icons64.put("java", null);
     }
 
     public static Image getIcon32(File file) {

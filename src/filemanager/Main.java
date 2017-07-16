@@ -7,36 +7,33 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
 import java.util.Observable;
 import java.util.Observer;
 
 public class Main extends Application {
 
-    DirectoryView directoryView;
-    DirectoryViewTop directoryViewTop;
-    DirectoryTreeView directoryTreeView;
-    FileInfView fileInfView;
-
-    States states;
+    private DirectoryView     directoryView;
+    private DirectoryViewTop  directoryViewTop;
+    private DirectoryTreeView directoryTreeView;
+    private FileInfView       fileInfView;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        states = States.getInstance();
+        States states = States.getInstance();
 
-        directoryView = new DirectoryView();
-        directoryViewTop = new DirectoryViewTop();
+        directoryView     = new DirectoryView();
+        directoryViewTop  = new DirectoryViewTop();
         directoryTreeView = new DirectoryTreeView();
-        fileInfView = new FileInfView();
+        fileInfView       = new FileInfView();
 
-        BorderPane root  = new BorderPane();
-        root.setTop(new HBox (directoryViewTop.getView()));
+        BorderPane root = new BorderPane();
+        root.setTop(directoryViewTop.getView());
         root.setBottom(fileInfView);
         root.setLeft(directoryTreeView.getTreeView());
 
         directoryTreeView.getTreeView().prefHeightProperty().bind(root.heightProperty());
-        root.getTop().setStyle("-fx-background-color:#1c2528");
+        root.getTop().setStyle("-fx-background-color:#16284c");
         root.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {

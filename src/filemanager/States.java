@@ -9,7 +9,7 @@ import java.util.Observable;
  */
 public class States extends Observable {
 
-    public static final int EV_NEW_CUR_DIR = 1;
+    public static final int EV_NEW_CUR_DIR   = 1;
     public static final int EV_NEW_SELL_FILE = 2;
 
     private static States ourInstance;
