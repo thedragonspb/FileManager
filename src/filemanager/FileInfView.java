@@ -40,7 +40,7 @@ public class FileInfView extends HBox {
             img = new ImageView(Icons.getIcon64(file));
         } else {
             view = createDriveInfView(file);
-            img = new ImageView(Icons.hardDrive32);
+            img = new ImageView(Icons.hardDrive64);
         }
 
         getChildren().addAll(img, view);
