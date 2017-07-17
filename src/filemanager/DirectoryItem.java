@@ -30,10 +30,7 @@ class DirectoryItem {
     ImageView imageView;
     VBox vBox = new VBox();
 
-    private File file;
-
     DirectoryItem(File file, Image image) {
-        this.file = file;
         name = newLabel(file.getName());
         imageView = newImageView(image);
         vBox = new VBox(imageView, name);
@@ -43,33 +40,21 @@ class DirectoryItem {
             @Override
             public void handle(MouseEvent event) {
                 if(event.getButton().equals(MouseButton.PRIMARY)){
+
+                    // обработка события нажатия но папку/файл левой кнопки мыши
                     switch (event.getClickCount()) {
+                        // одно нажатие
                         case 1 : {
                             setSelectedItem(file);
                             break;
                         }
+                        // дабл клик
                         case 2 : {
+                            // если это папка, задаем ее текущей и обновляем путь к ней из корня
                             if (file.isDirectory()) {
-                                ArrayList<File> history = States.getInstance().getHistory();
-                                if (!history.contains(file)) {
-                                    history.clear();
-                                    File temp = file;
-                                    do {
-                                        history.add(temp);
-                                        temp = temp.getParentFile();
-                                    } while (temp != null);
-                                }
-                                States.getInstance().setCurrentDirectory(file);
+                                updateHistory(file);
                             } else {
-                                if( Desktop.isDesktopSupported() ) {
-                                    new Thread(() -> {
-                                        try {
-                                            Desktop.getDesktop().browse(file.toURI());
-                                        } catch (IOException e1) {
-                                            e1.printStackTrace();
-                                        }
-                                    }).start();
-                                }
+                                openFile(file);
                             }
                             break;
                         }
@@ -77,6 +62,7 @@ class DirectoryItem {
                 }
             }
         });
+        // событие нажатие правой кнопки мыши
         vBox.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -88,7 +74,34 @@ class DirectoryItem {
         });
     }
 
+    public static void updateHistory(File file) {
+        ArrayList<File> history = States.getInstance().getHistory();
+        if (!history.contains(file)) {
+            history.clear();
+            File temp = file;
+            do {
+                history.add(temp);
+                temp = temp.getParentFile();
+            } while (temp != null);
+        }
+        States.getInstance().setCurrentDirectory(file);
+    }
+
+    public static void openFile(File file) {
+        if( Desktop.isDesktopSupported() ) {
+            new Thread(() -> {
+                try {
+                    Desktop.getDesktop().browse(file.toURI());
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }).start();
+        }
+    }
+
     private void setSelectedItem(File file) {
+        // устанавливаем цвет предыдущего выделенного элемента обычным и
+        // выделяем новый
         if (selectedItem != null)
             selectedItem.setStyle("");
         selectedItem = vBox;
@@ -121,7 +134,10 @@ class DirectoryItem {
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                File parent = file.getParentFile();
                 if (file.delete()) {
+                    States.getInstance().getHistory().clear();
+                    updateHistory(parent);
                     States.getInstance().setCurrentDirectory(States.getInstance().getCurrentDirectory());
                 } else {
                     String temp = file.isDirectory() ? "эту папку" : "этот файл";
@@ -146,6 +162,8 @@ class DirectoryItem {
                     String path = States.getInstance().getCurrentDirectory().getPath();
                     File newName = new File(path + "/" + result.get());
                     if (file.renameTo(newName)) {
+                        States.getInstance().getHistory().clear();
+                        updateHistory(file.getParentFile());
                         States.getInstance().setCurrentDirectory(States.getInstance().getCurrentDirectory());
                     } else {
                         Alert alert = new Alert(Alert.AlertType.ERROR);

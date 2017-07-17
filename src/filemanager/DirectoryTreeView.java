@@ -4,15 +4,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
-import java.awt.*;
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Created by thedragonspb on 14.07.17.
@@ -27,30 +23,15 @@ public class DirectoryTreeView {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if (newValue != null) {
-                    File selectedItem = ((TreeItem<File>) newValue).getValue();
-                    if (selectedItem.isDirectory()) {
-                        ArrayList<File> history = States.getInstance().getHistory();
-                        if (!history.contains(selectedItem)) {
-                            history.clear();
-                            File temp = selectedItem;
-                            do {
-                                history.add(temp);
-                                temp = temp.getParentFile();
-                            } while (temp != null);
-                        }
-                        States.getInstance().setCurrentDirectory(selectedItem);
+                    CustomTreeItem item = (CustomTreeItem) newValue;
+                    File file = item.getFile();
+                    if (file == null)
+                        return;
+                    if (file.isDirectory()) {
+                        DirectoryItem.updateHistory(file);
                     } else {
-                        if(Desktop.isDesktopSupported() )
-                        {
-                            new Thread(() -> {
-                                try {
-                                    Desktop.getDesktop().browse(selectedItem.toURI());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }).start();
-                        }
-                        States.getInstance().setSelectedFile(selectedItem);
+                        DirectoryItem.openFile(file);
+                        States.getInstance().setSelectedFile(file);
                     }
                 }
             }
@@ -58,59 +39,29 @@ public class DirectoryTreeView {
     }
 
     private TreeView buildFileSystemBrowser() {
-        File file = new File("/");
-        Image img = file.listFiles().length > 0 ? Icons.folderIcon32 : Icons.emptyFolderIcon32;
-        TreeItem<File> root = createNode(new File("/"), img);
+        File[] roots = File.listRoots();
+        FileSystemView fsv = FileSystemView.getFileSystemView();
+
+        Image imgPC = Icons.computer;
+        Image imgDrive = Icons.hardDrive32;
+
+        CustomTreeItem root;
+        if (States.getInstance().isWindows()) {
+            root = new CustomTreeItem("Компьютер", imgPC, null);
+            root.setFirstTimeChildren(false);
+            root.setFirstTimeLeaf(false);
+            ObservableList<CustomTreeItem> children = FXCollections.observableArrayList();
+            for (File drive : roots) {
+                if (fsv.getSystemTypeDescription(drive).equals("Локальный диск") ||
+                    fsv.getSystemTypeDescription(drive).equals("Local Disk")) {
+                    children.add(new CustomTreeItem(fsv.getSystemDisplayName(drive), imgDrive, drive));
+                }
+            }
+            root.getChildren().setAll(children);
+        } else {
+            root = new CustomTreeItem("Компьютер", imgPC, new File("/"));
+        }
         return new TreeView<>(root);
-    }
-
-    private TreeItem<File> createNode(final File f, Image img) {
-        return new TreeItem<File>(f, new ImageView(img)) {
-
-            private boolean isLeaf;
-            private boolean isFirstTimeChildren = true;
-            private boolean isFirstTimeLeaf = true;
-
-            @Override
-            public ObservableList<TreeItem<File>> getChildren() {
-                if (isFirstTimeChildren) {
-                    isFirstTimeChildren = false;
-                    super.getChildren().setAll(buildChildren(this));
-                }
-                return super.getChildren();
-            }
-
-            @Override
-            public boolean isLeaf() {
-                if (isFirstTimeLeaf) {
-                    isFirstTimeLeaf = false;
-                    File f = (File) getValue();
-                    isLeaf = f.isFile();
-                }
-                return isLeaf;
-            }
-
-            private ObservableList<TreeItem<File>> buildChildren(TreeItem<File> TreeItem) {
-                File f = TreeItem.getValue();
-                boolean showHiddenFiles = States.getInstance().isShowHiddenFiles();
-                if (f != null && f.isDirectory()) {
-                    File[] files = f.listFiles();
-                    if (files != null) {
-                        ObservableList<TreeItem<File>> children = FXCollections.observableArrayList();
-
-                        for (File childFile : files) {
-                            if ((childFile.isHidden() & showHiddenFiles) == true ||
-                                 !childFile.isHidden())
-                                children.add(createNode(childFile, Icons.getIcon32(childFile)));
-
-                        }
-
-                        return children;
-                    }
-                }
-                return FXCollections.emptyObservableList();
-            }
-        };
     }
 
     public TreeView<String> getTreeView() {

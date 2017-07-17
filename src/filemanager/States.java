@@ -9,11 +9,12 @@ import java.util.Observable;
  */
 public class States extends Observable {
 
-    public static final int EV_NEW_CUR_DIR   = 1;
-    public static final int EV_NEW_SELL_FILE = 2;
+    public static final int EV_NEW_CURRENT_DIR   = 1;
+    public static final int EV_NEW_SELECTED_FILE = 2;
 
     private static States ourInstance;
 
+    private boolean isWindows = false;
     private File selectedFile     = null;
     private File currentDirectory = null;
     private ArrayList<File> history;
@@ -22,6 +23,8 @@ public class States extends Observable {
 
     private States() {
         history = new ArrayList<>();
+        String OS = System.getProperty("os.name").toLowerCase();
+        isWindows = (OS.indexOf("win") >= 0);
     }
 
     public File getCurrentDirectory() {
@@ -32,7 +35,7 @@ public class States extends Observable {
         this.currentDirectory = currentDirectory;
         this.selectedFile = currentDirectory;
         setChanged();
-        notifyObservers(EV_NEW_CUR_DIR);
+        notifyObservers(EV_NEW_CURRENT_DIR);
     }
 
     public File getSelectedFile() {
@@ -42,7 +45,7 @@ public class States extends Observable {
     public void setSelectedFile(File selectedFile) {
         this.selectedFile = selectedFile;
         setChanged();
-        notifyObservers(EV_NEW_SELL_FILE);
+        notifyObservers(EV_NEW_SELECTED_FILE);
     }
 
     public ArrayList<File> getHistory() {
@@ -55,6 +58,10 @@ public class States extends Observable {
 
     public void setShowHiddenFiles(boolean showHiddenFiles) {
         this.showHiddenFiles = showHiddenFiles;
+    }
+
+    public boolean isWindows() {
+        return isWindows;
     }
 
     public static States getInstance() {

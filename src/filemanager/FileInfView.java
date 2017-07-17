@@ -3,10 +3,12 @@ package filemanager;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,14 +30,46 @@ public class FileInfView extends HBox {
         File file = States.getInstance().getSelectedFile();
 
         Node view = null;
-        ImageView img = new ImageView(Icons.getIcon64(file));
-        if (file.isDirectory()) {
-            view = createFolderInfView(file);
+        ImageView img;
+        if (file.getParentFile() != null) {
+            if (file.isDirectory()) {
+                view = createFolderInfView(file);
+            } else {
+                view = createFileInfView(file);
+            }
+            img = new ImageView(Icons.getIcon64(file));
         } else {
-            view = createFileInfView(file);
+            view = createDriveInfView(file);
+            img = new ImageView(Icons.hardDrive32);
         }
 
         getChildren().addAll(img, view);
+    }
+
+    private Node createDriveInfView(File file) {
+        FileSystemView fsv = FileSystemView.getFileSystemView();
+
+        Label name = createLabel(fsv.getSystemDisplayName(file));
+
+        ProgressBar progressBar = new ProgressBar(1.0 - (double)file.getFreeSpace()/file.getTotalSpace());
+        progressBar.setPrefWidth(200);
+        boolean isWin = States.getInstance().isWindows();
+        String total = getFileSize(file.getTotalSpace(), !isWin);
+        String free  = getFileSize(file.getFreeSpace(),  !isWin);
+        Label memory = createLabel(free + " свободно из " + total );
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10, 10, 10, 10));
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
+
+        gridPane.add(new Label("Имя")                 ,0,0);
+        gridPane.add(new Label("Память")              ,0,1);
+        gridPane.add(name                                  ,1,0);
+        gridPane.add(progressBar                           ,1,1);
+        gridPane.add(memory                                ,1,2);
+
+        return gridPane;
     }
 
     private Node createFolderInfView(File file) {
@@ -62,7 +96,7 @@ public class FileInfView extends HBox {
 
     private Node createFileInfView(File file) {
         Label name = createLabel(file.getName());
-        Label length = createLabel(getFileSize(file.length(), true));
+        Label length = createLabel(getFileSize(file.length(), !States.getInstance().isWindows()));
         DateFormat da = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
         Label lastModified = createLabel(da.format(new Date(file.lastModified())));
 
@@ -77,7 +111,6 @@ public class FileInfView extends HBox {
         gridPane.add(name                                  ,1,0);
         gridPane.add(length                                ,1,1);
         gridPane.add(lastModified                          ,1,2);
-
 
         return gridPane;
     }

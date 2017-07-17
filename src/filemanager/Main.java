@@ -5,17 +5,22 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import java.util.Observable;
 import java.util.Observer;
 
 public class Main extends Application {
 
-    private DirectoryView     directoryView;
-    private DirectoryViewTop  directoryViewTop;
-    private DirectoryTreeView directoryTreeView;
-    private FileInfView       fileInfView;
+
+    private DirectoryView     directoryView;      // представление папок / файлов
+    private DirectoryViewTop  directoryViewTop;   // представление пути к текущей дирректории
+    private DirectoryTreeView directoryTreeView;  // представление дерева иерархии папок
+    private FileInfView       fileInfView;        // представление информации о выделенной папке / файле
 
     @Override
     public void start(Stage primaryStage) {
@@ -32,6 +37,7 @@ public class Main extends Application {
         root.setBottom(fileInfView);
         root.setLeft(directoryTreeView.getTreeView());
 
+        // изменение представлений в зависимости от размеров окна
         directoryTreeView.getTreeView().prefHeightProperty().bind(root.heightProperty());
         root.getTop().setStyle("-fx-background-color:#16284c");
         root.widthProperty().addListener(new ChangeListener<Number>() {
@@ -50,14 +56,14 @@ public class Main extends Application {
             public void update(Observable o, Object arg) {
                 if (o instanceof States) {
                     switch ((int) arg) {
-                        case States.EV_NEW_CUR_DIR :
+                        case States.EV_NEW_CURRENT_DIR :
                             directoryView.setFiles(states.getCurrentDirectory().listFiles());
                             directoryViewTop.update();
                             fileInfView.update();
                             double sceneWidth = root.getWidth() - directoryTreeView.treeView.getWidth();
                             root.setCenter(directoryView.createView((int) sceneWidth));
                             break;
-                        case States.EV_NEW_SELL_FILE :
+                        case States.EV_NEW_SELECTED_FILE :
                             fileInfView.update();
                             break;
                     }

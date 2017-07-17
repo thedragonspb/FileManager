@@ -10,10 +10,16 @@ import java.util.HashMap;
  */
 public class Icons {
 
+    public static Image openedFolder32    = new Image("icon32/opened-folder.png");
     public static Image folderIcon32      = new Image("icon32/folder.png");
-    public static Image emptyFolderIcon32 = new Image("icon32/empty_folder.png");
     public static Image folderIcon64      = new Image("icon64/folder.png");
+    public static Image emptyFolderIcon32 = new Image("icon32/empty_folder.png");
     public static Image emptyFolderIcon64 = new Image("icon64/empty_folder.png");
+    public static Image unknownFile32     = new Image("icon32/file.png");
+    public static Image unknownFile64     = new Image("icon64/file.png");
+    public static Image hardDrive32       = new Image("icon32/hard-drive.png");
+    public static Image hardDrive64       = new Image("icon64/hard-drive.png");
+    public static Image computer          = new Image("icon32/computer.png");
 
     private static final HashMap<String, Image> icons32 = new HashMap<>();
     private static final HashMap<String, Image> icons64 = new HashMap<>();
@@ -56,11 +62,15 @@ public class Icons {
             if (icons32.containsKey(ext)) {
                 Image img = icons32.get(ext);
                 if (img == null) {
-                    icons32.replace(ext, img = new Image("icon32/" + ext + ".png"));
+                    try {
+                        icons32.replace(ext, img = new Image("icon32/" + ext + ".png"));
+                    } catch (IllegalArgumentException e) {
+                        return unknownFile32;
+                    }
                 }
                 return img;
             }
-            return new Image("icon32/file.png");
+            return unknownFile32;
         }
     }
 
@@ -76,11 +86,15 @@ public class Icons {
             if (icons64.containsKey(ext)) {
                 Image img = icons64.get(ext);
                 if (img == null) {
-                    icons64.replace(ext, img = new Image("icon64/" + ext + ".png"));
+                    try {
+                        icons64.replace(ext, img = new Image("icon64/" + ext + ".png"));
+                    } catch (IllegalArgumentException e) {
+                        return unknownFile64;
+                    }
                 }
                 return img;
             }
-            return new Image("icon64/file.png");
+            return unknownFile64;
         }
     }
 

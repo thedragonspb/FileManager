@@ -9,7 +9,6 @@ import javafx.scene.layout.VBox;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Optional;
 
 /**
  * Created by thedragonspb on 10.07.17.

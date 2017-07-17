@@ -9,6 +9,8 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -21,7 +23,7 @@ public class DirectoryViewTop {
     private Button next = new Button(">");
     private Button prev = new Button("<");
     private Button newDirectory = new Button("+ Новая папка");
-    private CheckBox showHiddenFiles = new CheckBox("Показывать скрытые папки");
+    private CheckBox showHiddenFiles = new CheckBox("Показывать скрытые папки и файлы");
 
     private HBox pathView;
     private HBox pathControllersView;
@@ -59,7 +61,7 @@ public class DirectoryViewTop {
         newDirectory.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                createFolderView();
+                createNewFolderDialog();
             }
         });
 
@@ -67,11 +69,7 @@ public class DirectoryViewTop {
             @Override
             public void handle(ActionEvent event) {
                 States states = States.getInstance();
-                if (showHiddenFiles.isSelected()) {
-                    states.setShowHiddenFiles(true);
-                } else {
-                    states.setShowHiddenFiles(false);
-                }
+                states.setShowHiddenFiles(showHiddenFiles.isSelected());
                 if (states.getCurrentDirectory() != null) {
                     states.setCurrentDirectory(states.getCurrentDirectory());
                 }
@@ -104,7 +102,7 @@ public class DirectoryViewTop {
         createPath();
     }
 
-    public void createFolderView() {
+    public void createNewFolderDialog() {
         TextInputDialog dialog = new TextInputDialog("Имя папки");
         dialog.setTitle("Новая папка");
         dialog.setHeaderText(null);
@@ -130,7 +128,7 @@ public class DirectoryViewTop {
         ArrayList<File> files = states.getHistory();
         pathView.getChildren().clear();
         for (int i = files.size() - 1; i >= 0; i--) {
-            PathView btn = new PathView(files.get(i));
+            PathViewItem btn = new PathViewItem(files.get(i));
             if (files.get(i).equals(states.getCurrentDirectory())) {
                 btn.setDisable(true);
             }
@@ -138,12 +136,14 @@ public class DirectoryViewTop {
         }
     }
 
-    class PathView extends javafx.scene.control.Button {
+    class PathViewItem extends javafx.scene.control.Button {
         File file;
-        public PathView(File file) {
+        public PathViewItem(File file) {
             String name = file.getName();
-            if (name.equals(""))
-                name = "/";
+            if (file.getParentFile() == null) {
+                FileSystemView fsv = FileSystemView.getFileSystemView();
+                name = fsv.getSystemDisplayName(file);
+            }
             setText(name);
             this.file = file;
             this.setOnMouseClicked(new EventHandler<MouseEvent>() {
