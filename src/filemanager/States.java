@@ -33,19 +33,11 @@ public class States extends Observable {
 
     public void setCurrentDirectory(File currentDirectory) {
         this.currentDirectory = currentDirectory;
-        this.selectedFile = currentDirectory;
-        setChanged();
-        notifyObservers(EV_NEW_CURRENT_DIR);
-    }
-
-    public File getSelectedFile() {
-        return selectedFile;
+        this.selectedFile     = currentDirectory;
     }
 
     public void setSelectedFile(File selectedFile) {
         this.selectedFile = selectedFile;
-        setChanged();
-        notifyObservers(EV_NEW_SELECTED_FILE);
     }
 
     public ArrayList<File> getHistory() {

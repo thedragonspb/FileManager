@@ -1,5 +1,6 @@
 package filemanager;
 
+import filemanager.event.BaseController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -7,7 +8,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -16,7 +16,6 @@ import javafx.scene.layout.VBox;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static filemanager.DirectoryView.*;
@@ -24,35 +23,33 @@ import static filemanager.DirectoryView.*;
 /**
  * Created by thedragonspb on 16.07.17.
  */
-class DirectoryItem {
+class DirectoryItem extends VBox {
 
     Label name;
-    ImageView imageView;
-    VBox vBox = new VBox();
+    BaseController controller;
 
-    DirectoryItem(File file, Image image) {
+    DirectoryItem(File file, ImageView imageView) {
         name = newLabel(file.getName());
-        imageView = newImageView(image);
-        vBox = new VBox(imageView, name);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.setPadding(new Insets(ITEM_PADDING, ITEM_PADDING, ITEM_PADDING, ITEM_PADDING));
-        vBox.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        getChildren().addAll(imageView, name);
+        setAlignment(Pos.CENTER);
+        setPadding(new Insets(ITEM_PADDING, ITEM_PADDING, ITEM_PADDING, ITEM_PADDING));
+        setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(event.getButton().equals(MouseButton.PRIMARY)){
+                if (event.getButton().equals(MouseButton.PRIMARY)) {
 
                     // обработка события нажатия но папку/файл левой кнопки мыши
                     switch (event.getClickCount()) {
                         // одно нажатие
-                        case 1 : {
+                        case 1: {
                             setSelectedItem(file);
                             break;
                         }
                         // дабл клик
-                        case 2 : {
+                        case 2: {
                             // если это папка, задаем ее текущей и обновляем путь к ней из корня
                             if (file.isDirectory()) {
-                                updateHistory(file);
+                                controller.onNewCurDirectory(file);
                             } else {
                                 openFile(file);
                             }
@@ -63,28 +60,15 @@ class DirectoryItem {
             }
         });
         // событие нажатие правой кнопки мыши
-        vBox.setOnMousePressed(new EventHandler<MouseEvent>() {
+        setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 if (event.isSecondaryButtonDown()) {
                     setSelectedItem(file);
-                    createContextMenu(file).show(vBox, event.getScreenX(), event.getScreenY());
+                    createContextMenu(file).show(getParent(), event.getScreenX(), event.getScreenY());
                 }
             }
         });
-    }
-
-    public static void updateHistory(File file) {
-        ArrayList<File> history = States.getInstance().getHistory();
-        if (!history.contains(file)) {
-            history.clear();
-            File temp = file;
-            do {
-                history.add(temp);
-                temp = temp.getParentFile();
-            } while (temp != null);
-        }
-        States.getInstance().setCurrentDirectory(file);
     }
 
     public static void openFile(File file) {
@@ -104,9 +88,9 @@ class DirectoryItem {
         // выделяем новый
         if (selectedItem != null)
             selectedItem.setStyle("");
-        selectedItem = vBox;
-        vBox.setStyle("-fx-background-color:#fcf3ba");
-        States.getInstance().setSelectedFile(file);
+        selectedItem = this;
+        setStyle("-fx-background-color:#fcf3ba");
+        controller.onNewCurFile(file);
     }
 
     private Label newLabel(String text) {
@@ -118,13 +102,6 @@ class DirectoryItem {
         return label;
     }
 
-    private ImageView newImageView(Image image) {
-        ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(ITEM_IMG_WIDTH);
-        imageView.setFitHeight(ITEM_IMG_WIDTH);
-        return imageView;
-    }
-
     private ContextMenu createContextMenu(File file) {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem rename = new MenuItem("Переименовать");
@@ -134,11 +111,8 @@ class DirectoryItem {
         delete.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                File parent = file.getParentFile();
                 if (file.delete()) {
-                    States.getInstance().getHistory().clear();
-                    updateHistory(parent);
-                    States.getInstance().setCurrentDirectory(States.getInstance().getCurrentDirectory());
+                    controller.onDeleteDirectory(file);
                 } else {
                     String temp = file.isDirectory() ? "эту папку" : "этот файл";
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -159,12 +133,10 @@ class DirectoryItem {
                 dialog.setContentText("Введите имя :");
                 Optional<String> result = dialog.showAndWait();
                 if (result.isPresent()) {
-                    String path = States.getInstance().getCurrentDirectory().getPath();
+                    String path = file.getParentFile().getPath();
                     File newName = new File(path + "/" + result.get());
                     if (file.renameTo(newName)) {
-                        States.getInstance().getHistory().clear();
-                        updateHistory(file.getParentFile());
-                        States.getInstance().setCurrentDirectory(States.getInstance().getCurrentDirectory());
+                        controller.onRenameDirectory(file);
                     } else {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Ошибка");
@@ -176,5 +148,9 @@ class DirectoryItem {
             }
         });
         return contextMenu;
+    }
+
+    public void setController(BaseController controller) {
+        this.controller = controller;
     }
 }

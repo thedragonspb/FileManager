@@ -1,6 +1,7 @@
 package filemanager;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.util.HashMap;
@@ -10,33 +11,19 @@ import java.util.HashMap;
  */
 public class Icons {
 
-    public static Image openedFolder32    = new Image("icon32/opened-folder.png");
-    public static Image folderIcon32      = new Image("icon32/folder.png");
-    public static Image folderIcon64      = new Image("icon64/folder.png");
-    public static Image emptyFolderIcon32 = new Image("icon32/empty_folder.png");
-    public static Image emptyFolderIcon64 = new Image("icon64/empty_folder.png");
-    public static Image unknownFile32     = new Image("icon32/file.png");
-    public static Image unknownFile64     = new Image("icon64/file.png");
-    public static Image hardDrive32       = new Image("icon32/hard-drive.png");
-    public static Image hardDrive64       = new Image("icon64/hard-drive.png");
-    public static Image computer          = new Image("icon32/computer.png");
+    public static final int SMALL_ICON_WIDTH    = 35;
+    public static final int MEDIUM_ICON_WIDTH   = 60;
 
-    private static final HashMap<String, Image> icons32 = new HashMap<>();
+    public static Image openedFolder     = new Image("icon64/opened-folder.png");
+    public static Image folderIcon       = new Image("icon64/folder.png");
+    public static Image emptyFolderIcon  = new Image("icon64/empty_folder.png");
+    public static Image unknownFile      = new Image("icon64/file.png");
+    public static Image hardDrive        = new Image("icon64/hard-drive.png");
+    public static Image computer         = new Image("icon64/computer.png");
+
     private static final HashMap<String, Image> icons64 = new HashMap<>();
 
     static {
-        icons32.put("avi" , null);         icons32.put("css" , null);
-        icons32.put("csv" , null);         icons32.put("dbf" , null);
-        icons32.put("doc" , null);         icons32.put("exe" , null);
-        icons32.put("html", null);         icons32.put("iso" , null);
-        icons32.put("js"  , null);         icons32.put("jpg" , null);
-        icons32.put("mp3" , null);         icons32.put("mp4" , null);
-        icons32.put("pdf" , null);         icons32.put("png" , null);
-        icons32.put("psd" , null);         icons32.put("rar" , null);
-        icons32.put("txt" , null);         icons32.put("zip" , null);
-        icons32.put("xls" , null);         icons32.put("xml" , null);
-        icons32.put("zip" , null);         icons32.put("java", null);
-
         icons64.put("avi" , null);         icons64.put("css" , null);
         icons64.put("csv" , null);         icons64.put("dbf" , null);
         icons64.put("doc" , null);         icons64.put("exe" , null);
@@ -50,36 +37,13 @@ public class Icons {
         icons64.put("zip" , null);         icons64.put("java", null);
     }
 
-    public static Image getIcon32(File file) {
+    public static ImageView getIcon(File file) {
+        Image image = unknownFile;
         if (file.isDirectory()) {
             if (file.listFiles() != null && file.listFiles().length > 0) {
-                return folderIcon32;
+                image = folderIcon;
             } else {
-                return emptyFolderIcon32;
-            }
-        } else {
-            String ext = getFileExtension(file);
-            if (icons32.containsKey(ext)) {
-                Image img = icons32.get(ext);
-                if (img == null) {
-                    try {
-                        icons32.replace(ext, img = new Image("icon32/" + ext + ".png"));
-                    } catch (IllegalArgumentException e) {
-                        return unknownFile32;
-                    }
-                }
-                return img;
-            }
-            return unknownFile32;
-        }
-    }
-
-    public static Image getIcon64(File file) {
-        if (file.isDirectory()) {
-            if (file.listFiles() != null && file.listFiles().length > 0) {
-                return folderIcon64;
-            } else {
-                return emptyFolderIcon64;
+                image = emptyFolderIcon;
             }
         } else {
             String ext = getFileExtension(file);
@@ -89,13 +53,20 @@ public class Icons {
                     try {
                         icons64.replace(ext, img = new Image("icon64/" + ext + ".png"));
                     } catch (IllegalArgumentException e) {
-                        return unknownFile64;
+                        e.printStackTrace();
                     }
                 }
-                return img;
+                image = img;
             }
-            return unknownFile64;
         }
+        return new ImageView(image);
+    }
+
+    public static ImageView getIcon(File file, int width) {
+        ImageView imageView = getIcon(file);
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(width);
+        return imageView;
     }
 
     public static String getFileExtension(File file) {
@@ -105,5 +76,12 @@ public class Icons {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public static ImageView getIcon(Image image, int width) {
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(width);
+        return imageView;
     }
 }

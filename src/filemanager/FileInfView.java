@@ -1,5 +1,6 @@
 package filemanager;
 
+import filemanager.event.BaseController;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -19,15 +20,16 @@ import java.util.Date;
  */
 public class FileInfView extends HBox {
 
-    public FileInfView() {
+    BaseController controller;
+
+    public FileInfView(BaseController controller) {
+        this.controller = controller;
         setPadding(new Insets(10,10,10,10));
         setSpacing(10);
     }
 
-    public void update() {
+    public void update(File file) {
         getChildren().clear();
-
-        File file = States.getInstance().getSelectedFile();
 
         Node view = null;
         ImageView img;
@@ -37,10 +39,10 @@ public class FileInfView extends HBox {
             } else {
                 view = createFileInfView(file);
             }
-            img = new ImageView(Icons.getIcon64(file));
+            img = Icons.getIcon(file, Icons.MEDIUM_ICON_WIDTH);
         } else {
             view = createDriveInfView(file);
-            img = new ImageView(Icons.hardDrive64);
+            img = Icons.getIcon(Icons.hardDrive, Icons.MEDIUM_ICON_WIDTH);
         }
 
         getChildren().addAll(img, view);
@@ -76,7 +78,7 @@ public class FileInfView extends HBox {
         Label name = createLabel(file.getName());
         Label itemsCount = createLabel("" + (file.list() != null ? file.list().length : 0));
 
-        DateFormat da = new SimpleDateFormat("HH:mm:ss  dd.MM.yyyy");
+        DateFormat da = new SimpleDateFormat("HH:mm dd.MM.yyyy");
         Label lastModified = createLabel(da.format(new Date(file.lastModified())));
 
         GridPane gridPane = new GridPane();
@@ -97,7 +99,7 @@ public class FileInfView extends HBox {
     private Node createFileInfView(File file) {
         Label name = createLabel(file.getName());
         Label length = createLabel(getFileSize(file.length(), !States.getInstance().isWindows()));
-        DateFormat da = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy");
+        DateFormat da = new SimpleDateFormat("HH:mm dd.MM.yyyy");
         Label lastModified = createLabel(da.format(new Date(file.lastModified())));
 
         GridPane gridPane = new GridPane();

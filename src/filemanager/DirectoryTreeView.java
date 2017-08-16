@@ -1,11 +1,13 @@
 package filemanager;
 
+import filemanager.event.BaseController;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
@@ -13,13 +15,14 @@ import java.io.File;
 /**
  * Created by thedragonspb on 14.07.17.
  */
-public class DirectoryTreeView {
+public class DirectoryTreeView extends TreeView {
 
-    TreeView<String> treeView = null;
+    BaseController controller;
 
-    public DirectoryTreeView() {
-        treeView = buildFileSystemBrowser();
-        treeView.getSelectionModel().selectedItemProperty().addListener( new ChangeListener() {
+    public DirectoryTreeView(BaseController controller) {
+        super(buildFileSystemBrowser());
+        this.controller = controller;
+        getSelectionModel().selectedItemProperty().addListener( new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if (newValue != null) {
@@ -28,22 +31,22 @@ public class DirectoryTreeView {
                     if (file == null)
                         return;
                     if (file.isDirectory()) {
-                        DirectoryItem.updateHistory(file);
+                        controller.onNewCurDirectory(file);
                     } else {
                         DirectoryItem.openFile(file);
-                        States.getInstance().setSelectedFile(file);
+                        controller.onNewCurFile(file);
                     }
                 }
             }
         });
     }
 
-    private TreeView buildFileSystemBrowser() {
+    private static TreeItem buildFileSystemBrowser() {
         File[] roots = File.listRoots();
         FileSystemView fsv = FileSystemView.getFileSystemView();
 
-        Image imgPC = Icons.computer;
-        Image imgDrive = Icons.hardDrive32;
+        ImageView imgPC    = Icons.getIcon(Icons.computer, Icons.SMALL_ICON_WIDTH);
+        ImageView imgDrive = Icons.getIcon(Icons.hardDrive, Icons.SMALL_ICON_WIDTH);
 
         CustomTreeItem root;
         if (States.getInstance().isWindows()) {
@@ -61,10 +64,6 @@ public class DirectoryTreeView {
         } else {
             root = new CustomTreeItem("Компьютер", imgPC, new File("/"));
         }
-        return new TreeView<>(root);
-    }
-
-    public TreeView<String> getTreeView() {
-        return treeView;
+        return root;
     }
 }

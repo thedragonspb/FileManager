@@ -1,10 +1,10 @@
 package filemanager;
 
+import filemanager.event.BaseController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -18,30 +18,32 @@ import java.util.Optional;
 /**
  * Created by thedragonspb on 10.07.17.
  */
-public class DirectoryViewTop {
+public class DirectoryViewTop extends VBox {
 
     private Button next = new Button(">");
     private Button prev = new Button("<");
     private Button newDirectory = new Button("+ Новая папка");
-    private CheckBox showHiddenFiles = new CheckBox("Показывать скрытые папки и файлы");
+    private CheckBox showHiddenFiles = new CheckBox("Скрытые объекты");
 
     private HBox pathView;
     private HBox pathControllersView;
     private HBox controllersView;
-    private VBox topView;
 
     private States states;
 
-    public DirectoryViewTop() {
+    BaseController controller;
+
+    private File currentDirectory = null;
+
+    public DirectoryViewTop(BaseController controller) {
+        this.controller = controller;
         states = States.getInstance();
         
         prev.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                File currentDirectory   = states.getCurrentDirectory();
                 if (currentDirectory != null && currentDirectory.getParentFile() != null) {
-                    currentDirectory = currentDirectory.getParentFile();
-                    states.setCurrentDirectory(currentDirectory);
+                    controller.onNewCurDirectory(currentDirectory.getParentFile());
                 }
             }
         });
@@ -50,10 +52,8 @@ public class DirectoryViewTop {
             @Override
             public void handle(ActionEvent event) {
                 ArrayList<File> history = states.getHistory();
-                File currentDirectory   = states.getCurrentDirectory();
                 if (history.indexOf(currentDirectory) > 0) {
-                    currentDirectory = history.get(history.indexOf(currentDirectory) - 1);
-                    states.setCurrentDirectory(currentDirectory);
+                    controller.onNewCurDirectory(history.get(history.indexOf(currentDirectory) - 1));
                 }
             }
         });
@@ -70,8 +70,8 @@ public class DirectoryViewTop {
             public void handle(ActionEvent event) {
                 States states = States.getInstance();
                 states.setShowHiddenFiles(showHiddenFiles.isSelected());
-                if (states.getCurrentDirectory() != null) {
-                    states.setCurrentDirectory(states.getCurrentDirectory());
+                if (currentDirectory != null) {
+                    controller.onNewCurDirectory(currentDirectory);
                 }
             }
         });
@@ -89,16 +89,14 @@ public class DirectoryViewTop {
         controllersView.setAlignment(Pos.CENTER_RIGHT);
         controllersView.setSpacing(10);
 
-        topView = new VBox(pathControllersView, controllersView);
-        topView.setSpacing(5);
-        topView.setPadding(new Insets(0,5,5,0));
+        getChildren().addAll(pathControllersView, controllersView);
+        setSpacing(5);
+        setPadding(new Insets(0,5,5,0));
     }
 
-    public Node getView() {
-        return topView;
-    }
-
-    public void update() {
+    public void update(File curDir) {
+        currentDirectory = curDir;
+        updateHistory(curDir);
         createPath();
     }
 
@@ -108,12 +106,10 @@ public class DirectoryViewTop {
         dialog.setHeaderText(null);
         dialog.setContentText("Введите имя папки:");
         Optional<String> result = dialog.showAndWait();
-        File cur = States.getInstance().getCurrentDirectory();
-        if (result.isPresent() && cur != null) {
-            File newFile = new File(cur.getPath() + "/" + result.get());
+        if (result.isPresent() && currentDirectory != null) {
+            File newFile = new File(currentDirectory.getPath() + "/" + result.get());
             if (newFile.mkdir()) {
-                States.getInstance().setCurrentDirectory(cur);
-                States.getInstance().setSelectedFile(cur);
+                controller.onCreateDirectory(newFile);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Ошибка");
@@ -124,12 +120,24 @@ public class DirectoryViewTop {
         }
     }
 
+    public void updateHistory(File file) {
+        ArrayList<File> history = States.getInstance().getHistory();
+        if (!history.contains(file)) {
+            history.clear();
+            File temp = file;
+            do {
+                history.add(temp);
+                temp = temp.getParentFile();
+            } while (temp != null);
+        }
+    }
+
     private void createPath() {
         ArrayList<File> files = states.getHistory();
         pathView.getChildren().clear();
         for (int i = files.size() - 1; i >= 0; i--) {
             PathViewItem btn = new PathViewItem(files.get(i));
-            if (files.get(i).equals(states.getCurrentDirectory())) {
+            if (files.get(i).equals(currentDirectory)) {
                 btn.setDisable(true);
             }
             pathView.getChildren().add(btn);
@@ -149,7 +157,7 @@ public class DirectoryViewTop {
             this.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    states.setCurrentDirectory(file);
+                    controller.onNewCurDirectory(file);
                 }
             });
             setStyle(pathStyle);

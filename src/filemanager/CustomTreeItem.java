@@ -20,8 +20,8 @@ public class CustomTreeItem extends TreeItem<String> {
 
     private File file;
     
-    public CustomTreeItem(String value, Image graphic, File file) {
-        super(value, new ImageView(graphic));
+    public CustomTreeItem(String value, ImageView graphic, File file) {
+        super(value, graphic);
         this.file = file;
         // смена иконки при открытии / закрытии не пустой папки
         this.expandedProperty().addListener(new ChangeListener<Boolean>() {
@@ -29,9 +29,9 @@ public class CustomTreeItem extends TreeItem<String> {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if (file.listFiles() != null && file.listFiles().length > 0 && file.getParentFile() != null) {
                     if (newValue) {
-                        setGraphic(new ImageView(Icons.openedFolder32));
+                        setGraphic(Icons.getIcon(Icons.openedFolder, Icons.SMALL_ICON_WIDTH));
                     } else {
-                        setGraphic(new ImageView(Icons.folderIcon32));
+                        setGraphic(Icons.getIcon(Icons.folderIcon, Icons.SMALL_ICON_WIDTH));
                     }
                 }
             }
@@ -66,7 +66,7 @@ public class CustomTreeItem extends TreeItem<String> {
                 for (File childFile : files) {
                     // показывать скрытые папки или нет
                     if ((childFile.isHidden() & showHiddenFiles) == true || !childFile.isHidden()) {
-                        children.add(new CustomTreeItem(childFile.getName(), Icons.getIcon32(childFile), childFile));
+                        children.add(new CustomTreeItem(childFile.getName(), Icons.getIcon(childFile, Icons.SMALL_ICON_WIDTH), childFile));
                     }
                 }
                 return children;

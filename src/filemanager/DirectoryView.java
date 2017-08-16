@@ -1,9 +1,8 @@
 package filemanager;
 
+import filemanager.event.BaseController;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -13,32 +12,37 @@ import java.util.ArrayList;
 /**
  * Created by thedragonspb on 10.07.17.
  */
-public class DirectoryView {
+public class DirectoryView extends ScrollPane {
 
     public static int ITEM_WIDTH     = 120;
-    public static int ITEM_IMG_WIDTH = 60;
     public static int ITEM_PADDING   = 5;
     
-    private ScrollPane scrollPane;
     private GridPane gridPane;
 
     private ArrayList<DirectoryItem> items = new ArrayList<>();
 
     public static VBox selectedItem = null;
 
-    public DirectoryView() {
+    BaseController controller;
+
+    private int sceneWidth;
+    private int itemsCountInRow = 0;
+
+    public DirectoryView(BaseController controller) {
+        this.controller = controller;
+
         gridPane = new GridPane();
         gridPane.setAlignment(Pos.CENTER_LEFT);
         gridPane.setHgap(10);
         gridPane.setVgap(10);
 
-        scrollPane = new ScrollPane();
-        scrollPane.setContent(gridPane);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        setContent(gridPane);
+        setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
     }
 
-    public void setFiles(File[] files) {
+    public void update(File dir) {
+        File[] files = dir.listFiles();
         items.clear();
         ArrayList<File> notDirectory = new ArrayList<>();
         boolean showHiddenFiles = States.getInstance().isShowHiddenFiles();
@@ -46,8 +50,7 @@ public class DirectoryView {
             for (File file : files) {
                 if ((file.isHidden() & showHiddenFiles) == true || !file.isHidden()) {
                     if (file.isDirectory()) {
-                        Image image = Icons.getIcon64(file);
-                        items.add(new DirectoryItem(file, image));
+                        items.add(new DirectoryItem(file, Icons.getIcon(file, Icons.MEDIUM_ICON_WIDTH)));
                     } else {
                         notDirectory.add(file);
                     }
@@ -55,28 +58,40 @@ public class DirectoryView {
             }
 
             for (File file : notDirectory) {
-                Image image = Icons.getIcon64(file);
-                items.add(new DirectoryItem(file, image));
+                items.add(new DirectoryItem(file, Icons.getIcon(file, Icons.MEDIUM_ICON_WIDTH)));
+            }
+
+            for (DirectoryItem item : items) {
+                item.setController(controller);
             }
         }
+        updateView(false);
     }
 
-    public Node createView(int sceneWidth) {
+    public void setSceneWidth(int sceneWidth) {
+        this.sceneWidth = sceneWidth;
+    }
+
+    public void updateView(boolean update) {
 
         int buttonWidth = ITEM_WIDTH + ITEM_PADDING * 2;
-        int buttonsCountInRow = sceneWidth / buttonWidth;
+        int newItemsCountInRow = sceneWidth / buttonWidth;
+
+        if (newItemsCountInRow == itemsCountInRow && update)
+            return;
+
+        itemsCountInRow = newItemsCountInRow;
 
         gridPane.getChildren().clear();
 
         int i = 1, j = 1;
         for (DirectoryItem item : items) {
-            gridPane.add(item.vBox, i, j);
+            gridPane.add(item, i, j);
             i ++;
-            if (i == buttonsCountInRow) {
+            if (i == itemsCountInRow) {
                 j++;
                 i = 1;
             }
         }
-        return scrollPane;
     }
 }
