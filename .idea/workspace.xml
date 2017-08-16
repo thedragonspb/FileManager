@@ -6,50 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/icon64/computer.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/icon64/opened-folder.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/filemanager/MainScene.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/filemanager/event/BaseController.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/avi.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/computer.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/css.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/csv.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/dbf.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/doc.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/empty_folder.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/exe.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/file.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/folder.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/hard-drive.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/html.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/iso.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/java.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/javascript.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/jpg.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/mp3.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/mp4.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/opened-folder.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/pdf .png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/png.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/psd.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/rar.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/rtf.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/txt.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/xls.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/xml.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/icon32/zip.png" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/CustomTreeItem.java" afterPath="$PROJECT_DIR$/src/filemanager/CustomTreeItem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/DirectoryItem.java" afterPath="$PROJECT_DIR$/src/filemanager/DirectoryItem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/DirectoryTreeView.java" afterPath="$PROJECT_DIR$/src/filemanager/DirectoryTreeView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/DirectoryView.java" afterPath="$PROJECT_DIR$/src/filemanager/DirectoryView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/DirectoryViewTop.java" afterPath="$PROJECT_DIR$/src/filemanager/DirectoryViewTop.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/FileInfView.java" afterPath="$PROJECT_DIR$/src/filemanager/FileInfView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/Icons.java" afterPath="$PROJECT_DIR$/src/filemanager/Icons.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/Main.java" afterPath="$PROJECT_DIR$/src/filemanager/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/filemanager/States.java" afterPath="$PROJECT_DIR$/src/filemanager/States.java" />
-    </list>
+    <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="" />
     <ignored path="JavaFxApplication.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/out/" />
@@ -708,7 +665,14 @@
       <option name="project" value="LOCAL" />
       <updated>1500294051361</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Финал версии 1.0">
+      <created>1502885660632</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1502885660632</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
@@ -716,7 +680,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1303" height="780" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -726,7 +689,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32988048" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.626935" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32972136" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32972136" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32972136" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2565737" sideWeight="0.6703755" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
